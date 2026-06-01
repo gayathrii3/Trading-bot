@@ -72,12 +72,21 @@ venv\Scripts\python Bot/cli.py --symbol BTCUSDT --side BUY --type STOP_LIMIT --q
 ```
 
 
+### D. Run the Web UI Dashboard (Bonus)
 To launch the Web UI dashboard served locally by Flask:
 ```bash
 venv\Scripts\python Bot/web_server.py
 ```
+Once the server starts, open your web browser and navigate to:
+👉 **`http://127.0.0.1:5000`**
 
 From the dashboard you can switch sides (BUY/SELL), enter parameters, place orders (Market, Limit, and Stop-Limit), and watch the Central Trading Logs scroll live in the terminal panel!
+
+#### Web UI Dashboard Preview:
+![Web UI Dashboard](Screenshots/dashboard.png)
+
+#### Order Success Result Preview:
+![Order Success Result](Screenshots/order_success.png)
 
 ---
 
