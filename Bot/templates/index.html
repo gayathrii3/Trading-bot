@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance Futures Testnet Trading Bot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0e11;      /* Binance Pitch Black/Slate */
+            --panel-bg: #181a20;      /* Binance Slate Card */
+            --border-color: #2b3139;  /* Dark Slate Border */
+            --primary-glow: #f0b90b;  /* Pure Binance Yellow */
+            --accent-yellow: #f0b90b; /* Pure Binance Yellow */
+            --text-main: #eaecef;     /* Warm white */
+            --text-muted: #848e9c;    /* Binance Muted Grey */
+            --btn-text: #000000;      /* Dark text for yellow buttons */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Subtle dark yellow glow behind layout */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(240, 185, 11, 0.05) 0%, rgba(0,0,0,0) 70%);
+            top: -150px;
+            left: -150px;
+            z-index: -1;
+            filter: blur(80px);
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(240, 185, 11, 0.03) 0%, rgba(0,0,0,0) 70%);
+            bottom: -150px;
+            right: -150px;
+            z-index: -1;
+            filter: blur(80px);
+        }
+
+        header {
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: #12161a;
+            z-index: 10;
+        }
+
+        .logo-section h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-yellow);
+            letter-spacing: 0.5px;
+        }
+
+        .logo-section span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .status-badge-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            background: #181a20;
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            background-color: var(--text-muted);
+            box-shadow: 0 0 8px var(--text-muted);
+        }
+
+        .status-pill.online .status-indicator {
+            background-color: var(--accent-yellow);
+            box-shadow: 0 0 10px var(--accent-yellow);
+            animation: pulse 2s infinite;
+        }
+
+        .status-pill.dry-run .status-indicator {
+            background-color: #f0b90b;
+            box-shadow: 0 0 8px #f0b90b;
+        }
+
+        .status-pill.offline .status-indicator {
+            background-color: #4b5563;
+            box-shadow: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 40px;
+            display: grid;
+            grid-template-columns: 1.1fr 1.9fr;
+            gap: 30px;
+        }
+
+        /* Solid and Slate Panels */
+        .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(240, 185, 11, 0.3);
+            box-shadow: 0 4px 24px rgba(240, 185, 11, 0.05);
+        }
+
+        .panel-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid var(--accent-yellow);
+            padding-left: 10px;
+            color: var(--accent-yellow);
+            letter-spacing: 0.5px;
+        }
+
+        /* Order Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            background: #0b0e11;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-yellow);
+        }
+
+        /* Side Switch Toggle */
+        .side-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #0b0e11;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .side-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            padding: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .side-btn.active.buy {
+            background-color: var(--accent-yellow);
+            color: var(--btn-text);
+        }
+
+        .side-btn.active.sell {
+            background-color: #2b3139;
+            color: var(--accent-yellow);
+            border: 1px solid var(--accent-yellow);
+        }
+
+        /* Dynamic Visibility Fields */
+        .conditional-field {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .conditional-field.visible {
+            max-height: 100px;
+            opacity: 1;
+            margin-bottom: 20px;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background: var(--accent-yellow);
+            border: none;
+            border-radius: 4px;
+            color: var(--btn-text);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        .submit-btn:disabled {
+            background: #2b3139;
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* Spinner inside button */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-top-color: black;
+            border-radius: 50%;
+            animation: spin 0.8s infinite linear;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Terminal Console Panel */
+        .terminal-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .terminal-console {
+            flex: 1;
+            background-color: #000000; /* Pure black terminal */
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-yellow); /* Yellow Monospace text */
+            overflow-y: auto;
+            max-height: 480px;
+            min-height: 380px;
+            border-top: 4px solid var(--border-color);
+            position: relative;
+        }
+
+        /* Terminal header bars */
+        .terminal-header {
+            position: absolute;
+            top: 6px;
+            left: 15px;
+            display: flex;
+            gap: 6px;
+            z-index: 2;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            background-color: #2b3139;
+        }
+
+        .dot.active-yellow {
+            background-color: var(--accent-yellow);
+        }
+
+        .terminal-content {
+            margin-top: 10px;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        /* Result Panel */
+        .result-card {
+            background: #0b0e11;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card.success {
+            border-color: var(--accent-yellow);
+        }
+
+        .result-card.error {
+            border-color: #4b5563;
+        }
+
+        .result-header {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-header.success { color: var(--accent-yellow); }
+        .result-header.error { color: var(--text-muted); }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            row-gap: 6px;
+            column-gap: 15px;
+            font-size: 0.85rem;
+        }
+
+        .result-label {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .result-val {
+            color: var(--text-main);
+            text-align: right;
+            font-family: 'Fira Code', monospace;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            background-color: #12161a;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-section">
+            <h1>BINANCE FUTURES</h1>
+            <span>USDⓈ-M Bot Console</span>
+        </div>
+        <div class="status-badge-container">
+            <div id="status-pill" class="status-pill">
+                <span class="status-indicator"></span>
+                <span id="status-text">Connecting...</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Place Order Glass Card -->
+        <section class="glass-panel">
+            <div class="panel-title">PLACE ORDER</div>
+            
+            <form id="order-form">
+                <!-- Side selector Toggle -->
+                <div class="form-group">
+                    <label>Trade Action</label>
+                    <div class="side-toggle">
+                        <button type="button" class="side-btn buy active" onclick="setSide('BUY')">BUY / LONG</button>
+                        <button type="button" class="side-btn sell" onclick="setSide('SELL')">SELL / SHORT</button>
+                    </div>
+                </div>
+
+                <!-- Symbol Select -->
+                <div class="form-group">
+                    <label for="symbol">Symbol</label>
+                    <input type="text" id="symbol" placeholder="e.g., BTCUSDT" value="BTCUSDT" required autocomplete="off">
+                </div>
+
+                <!-- Order Type Select -->
+                <div class="form-group">
+                    <label for="order-type">Order Type</label>
+                    <select id="order-type" onchange="toggleOrderFields()" required>
+                        <option value="MARKET" selected>MARKET</option>
+                        <option value="LIMIT">LIMIT</option>
+                        <option value="STOP_LIMIT">STOP LIMIT</option>
+                    </select>
+                </div>
+
+                <!-- Quantity -->
+                <div class="form-group">
+                    <label for="quantity">Quantity (Base Size)</label>
+                    <input type="number" id="quantity" step="0.00001" placeholder="e.g., 0.001" required autocomplete="off">
+                </div>
+
+                <!-- Limit Price -->
+                <div id="price-field" class="conditional-field">
+                    <label for="price">Limit Price (USDT)</label>
+                    <input type="number" id="price" step="0.01" placeholder="e.g., 68500" autocomplete="off">
+                </div>
+
+                <!-- Stop Trigger Price -->
+                <div id="stop-price-field" class="conditional-field">
+                    <label for="stop-price">Stop Trigger Price (USDT)</label>
+                    <input type="number" id="stop-price" step="0.01" placeholder="e.g., 68450" autocomplete="off">
+                </div>
+
+                <button type="submit" id="submit-btn" class="submit-btn">
+                    <span class="spinner" id="btn-spinner"></span>
+                    <span id="btn-text">DISPATCH ORDER</span>
+                </button>
+            </form>
+
+            <!-- Result Card Panel -->
+            <div id="result-card" class="result-card">
+                <div id="result-title" class="result-header">
+                    <!-- Dynamic header text -->
+                </div>
+                <div id="result-body" class="result-grid">
+                    <!-- Dynamic grid rows -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Terminal Console Glass Card -->
+        <section class="terminal-panel">
+            <div class="glass-panel" style="flex: 1;">
+                <div class="panel-title">CONSOLES STREAM</div>
+                
+                <div class="terminal-console" id="terminal-console">
+                    <div class="terminal-header">
+                        <span class="dot active-yellow"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <div class="terminal-content" id="terminal-log-content">Loading stream...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        BINANCE FUTURES TERMINAL
+    </footer>
+
+    <script>
+        let currentSide = 'BUY';
+
+        // 1. Initial State Connections
+        document.addEventListener("DOMContentLoaded", () => {
+            checkAPIStatus();
+            fetchLogs();
+            
+            // Poll status and logs continuously
+            setInterval(checkAPIStatus, 10000); 
+            setInterval(fetchLogs, 2000);        
+        });
+
+        // 2. Set Trade Side
+        function setSide(side) {
+            currentSide = side;
+            const buyBtn = document.querySelector('.side-btn.buy');
+            const sellBtn = document.querySelector('.side-btn.sell');
+            
+            if (side === 'BUY') {
+                buyBtn.classList.add('active');
+                buyBtn.classList.add('buy');
+                sellBtn.classList.remove('active');
+                sellBtn.classList.remove('sell');
+            } else {
+                sellBtn.classList.add('active');
+                sellBtn.classList.add('sell');
+                buyBtn.classList.remove('active');
+                buyBtn.classList.remove('buy');
+            }
+        }
+
+        // 3. Dynamic Field Toggles
+        function toggleOrderFields() {
+            const type = document.getElementById("order-type").value;
+            const priceField = document.getElementById("price-field");
+            const stopPriceField = document.getElementById("stop-price-field");
+
+            if (type === 'LIMIT' || type === 'STOP_LIMIT') {
+                priceField.classList.add('visible');
+                document.getElementById("price").setAttribute('required', 'true');
+            } else {
+                priceField.classList.remove('visible');
+                document.getElementById("price").removeAttribute('required');
+            }
+
+            if (type === 'STOP_LIMIT') {
+                stopPriceField.classList.add('visible');
+                document.getElementById("stop-price").setAttribute('required', 'true');
+            } else {
+                stopPriceField.classList.remove('visible');
+                document.getElementById("stop-price").removeAttribute('required');
+            }
+        }
+
+        // 4. API Connectivity Checks
+        async function checkAPIStatus() {
+            const statusPill = document.getElementById("status-pill");
+            const statusText = document.getElementById("status-text");
+
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                
+                statusPill.className = "status-pill"; 
+                
+                if (data.connected) {
+                    statusText.textContent = data.mode;
+                    statusPill.classList.add("online"); // online activates yellow indicators now
+                } else {
+                    statusText.textContent = "Offline/API Disconnected";
+                    statusPill.classList.add("offline");
+                }
+            } catch (err) {
+                statusText.textContent = "Console Server Down";
+                statusPill.className = "status-pill offline";
+            }
+        }
+
+        // 5. Fetch Log files live
+        async function fetchLogs() {
+            const logContainer = document.getElementById("terminal-log-content");
+            const terminalConsole = document.getElementById("terminal-console");
+            
+            try {
+                const res = await fetch('/api/logs');
+                const data = await res.json();
+                
+                const isScrolledToBottom = terminalConsole.scrollHeight - terminalConsole.clientHeight <= terminalConsole.scrollTop + 50;
+                
+                // Keep text styled within our beautiful high-contrast yellow/grey console theme
+                let logsHtml = data.logs
+                    .replace(/\[INFO\]/g, '<span style="color: #f0b90b;">[INFO]</span>')
+                    .replace(/\[WARNING\]/g, '<span style="color: #eaecef; font-weight: 600;">[WARNING]</span>')
+                    .replace(/\[ERROR\]/g, '<span style="color: #848e9c; font-style: italic;">[ERROR]</span>')
+                    .replace(/\[DEBUG\]/g, '<span style="color: #848e9c;">[DEBUG]</span>')
+                    .replace(/\[DRY-RUN\]/g, '<span style="color: #f0b90b; font-weight: bold; border-bottom: 1px dashed #f0b90b;">[DRY-RUN]</span>');
+
+                logContainer.innerHTML = logsHtml;
+                
+                if (isScrolledToBottom) {
+                    terminalConsole.scrollTop = terminalConsole.scrollHeight;
+                }
+            } catch (err) {
+                logContainer.innerHTML = '<span style="color:#848e9c;">Error polling central trace file logs...</span>';
+            }
+        }
+
+        // 6. Form Submission
+        document.getElementById("order-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById("submit-btn");
+            const spinner = document.getElementById("btn-spinner");
+            const btnText = document.getElementById("btn-text");
+            const resultCard = document.getElementById("result-card");
+            const resultTitle = document.getElementById("result-title");
+            const resultBody = document.getElementById("result-body");
+
+            submitBtn.disabled = true;
+            spinner.style.display = "block";
+            btnText.textContent = "DISPATCHING...";
+            resultCard.style.display = "none";
+
+            const symbol = document.getElementById("symbol").value;
+            const type = document.getElementById("order-type").value;
+            const quantity = document.getElementById("quantity").value;
+            const price = document.getElementById("price").value || null;
+            const stop_price = document.getElementById("stop-price").value || null;
+
+            const payload = {
+                symbol,
+                side: currentSide,
+                type,
+                quantity,
+                price,
+                stop_price
+            };
+
+            try {
+                const res = await fetch('/api/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                
+                resultCard.className = "result-card";
+                
+                if (data.success) {
+                    resultCard.classList.add("success");
+                    resultTitle.innerHTML = '✔ SUCCESS: ORDER DISPATCHED';
+                    resultTitle.className = "result-header success";
+                    
+                    const details = data.response;
+                    const inputs = data.summary;
+                    
+                    let fillPrice = details.avgPrice;
+                    if (!fillPrice || parseFloat(fillPrice) === 0) {
+                        fillPrice = inputs.price ? inputs.price : 'Market Price';
+                    }
+
+                    resultBody.innerHTML = `
+                        <div class="result-label">Symbol:</div><div class="result-val">${details.symbol}</div>
+                        <div class="result-label">Order ID:</div><div class="result-val">${details.orderId}</div>
+                        <div class="result-label">Client ID:</div><div class="result-val">${details.clientOrderId}</div>
+                        <div class="result-label">Status:</div><div class="result-val" style="color:#f0b90b;font-weight:700;">${details.status}</div>
+                        <div class="result-label">Executed Qty:</div><div class="result-val">${details.executedQty}</div>
+                        <div class="result-label">Avg Fill Price:</div><div class="result-val" style="color:#f0b90b;font-weight:700;">${fillPrice}</div>
+                        <div class="result-label">Time in Force:</div><div class="result-val">${details.timeInForce}</div>
+                    `;
+                } else {
+                    resultCard.classList.add("error");
+                    resultTitle.innerHTML = '✖ FAILURE: ORDER REJECTED';
+                    resultTitle.className = "result-header error";
+                    
+                    resultBody.innerHTML = `
+                        <div class="result-label" style="grid-column: span 2; text-align: left; color:#848e9c;">
+                            ${data.error}
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                resultCard.className = "result-card error";
+                resultTitle.innerHTML = '✖ FAILURE: SERVER FAULT';
+                resultTitle.className = "result-header error";
+                resultBody.innerHTML = `
+                    <div class="result-label" style="grid-column: span 2; text-align: left; color:#848e9c;">
+                        Failed to connect to the Flask server. Please make sure the backend is active.
+                    </div>
+                `;
+            } finally {
+                submitBtn.disabled = false;
+                spinner.style.display = "none";
+                btnText.textContent = "DISPATCH ORDER";
+                resultCard.style.display = "block";
+                
+                setTimeout(fetchLogs, 500);
+            }
+        });
+    </script>
+</body>
+</html>
