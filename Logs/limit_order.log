@@ -1,0 +1,10 @@
+2026-06-01 20:43:02,687 [DEBUG] trading_bot (client.py:18): Loading environment variables from C:\Users\1341g\Trading_bot\api.env
+2026-06-01 20:43:02,687 [DEBUG] trading_bot (client.py:38): Initializing python-binance Client (testnet=True)
+2026-06-01 20:43:03,245 [DEBUG] trading_bot (client.py:18): Loading environment variables from C:\Users\1341g\Trading_bot\api.env
+2026-06-01 20:43:03,245 [DEBUG] trading_bot (client.py:38): Initializing python-binance Client (testnet=True)
+2026-06-01 20:43:03,658 [DEBUG] trading_bot (client.py:59): Pinging Binance Futures Testnet...
+2026-06-01 20:43:04,354 [INFO] trading_bot (client.py:62): Successfully pinged Binance Futures Testnet API.
+2026-06-01 20:43:04,354 [INFO] trading_bot (orders.py:33): Initiating order request -> Symbol: BTCUSDT | Side: SELL | Type: LIMIT | Qty: 0.001 | Price: 80000.0 | StopPrice: None
+2026-06-01 20:43:04,354 [DEBUG] trading_bot (orders.py:92): API Request Parameters: {'symbol': 'BTCUSDT', 'side': 'SELL', 'quantity': 0.001, 'type': 'LIMIT', 'price': 80000.0, 'timeInForce': 'GTC'}
+2026-06-01 20:43:04,551 [INFO] trading_bot (orders.py:96): Order placed successfully! Order ID: 13706406870
+2026-06-01 20:43:04,551 [DEBUG] trading_bot (orders.py:97): Raw API Response: {'orderId': 13706406870, 'symbol': 'BTCUSDT', 'status': 'NEW', 'clientOrderId': 'x-Cb7ytekJ177e1914e09e3ce8d51035', 'price': '80000.00', 'avgPrice': '0.00', 'origQty': '0.0010', 'executedQty': '0.0000', 'cumQty': '0.0000', 'cumQuote': '0.000000', 'timeInForce': 'GTC', 'type': 'LIMIT', 'reduceOnly': False, 'closePosition': False, 'side': 'SELL', 'positionSide': 'BOTH', 'stopPrice': '0.00', 'workingType': 'CONTRACT_PRICE', 'priceProtect': False, 'origType': 'LIMIT', 'priceMatch': 'NONE', 'selfTradePreventionMode': 'EXPIRE_MAKER', 'goodTillDate': 0, 'updateTime': 1780326785661}

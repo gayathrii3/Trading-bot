@@ -109,7 +109,9 @@ api.env
 api.env.bak
 
 # Custom Trading Bot Logs
-Logs/
+Logs/*
+!Logs/market_order.log
+!Logs/limit_order.log
 
 # Spyder project settings
 .spyderproject
