@@ -77,8 +77,7 @@ To launch the Web UI dashboard served locally by Flask:
 ```bash
 venv\Scripts\python Bot/web_server.py
 ```
-Once the server starts, open your web browser and navigate to:
-👉 **`http://127.0.0.1:5000`**
+Once the server starts, open your web browser
 
 From the dashboard you can switch sides (BUY/SELL), enter parameters, place orders (Market, Limit, and Stop-Limit), and watch the Central Trading Logs scroll live in the terminal panel!
 
