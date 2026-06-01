@@ -82,12 +82,6 @@ Once the server starts, open your web browser and navigate to:
 
 From the dashboard you can switch sides (BUY/SELL), enter parameters, place orders (Market, Limit, and Stop-Limit), and watch the Central Trading Logs scroll live in the terminal panel!
 
-#### Web UI Dashboard Preview:
-![Web UI Dashboard](Screenshots/dashboard.png)
-
-#### Order Success Result Preview:
-![Order Success Result](Screenshots/order_success.png)
-
 ---
 
 ## Error Handling & Validation Auditing
