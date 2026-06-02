@@ -11,7 +11,7 @@ The bot is structured to separate concerns cleanly:
 ```
 trading_bot/                 # Project Root
 │
-├── api.env                 # API Credentials (User-supplied, ignored in Git)
+├── api.env                 # API Credentials
 ├── requirements.txt         # Pre-configured Python requirements
 │
 └── Bot/                     # Application Package
@@ -30,8 +30,8 @@ trading_bot/                 # Project Root
 1. **Order Types & Sides**: Full support for both `BUY` and `SELL` across:
    * **`MARKET`** orders
    * **`LIMIT`** orders (requires `price` with `GTC` Time-In-Force)
-   * **`STOP_LIMIT`** (Bonus type - underlying `STOP` order type with `price`, `stopPrice` and `GTC` Time-In-Force)
-2. **Enhanced CLI UX (Bonus)**: 
+   * **`STOP_LIMIT`** (type - underlying `STOP` order type with `price`, `stopPrice` and `GTC` Time-In-Force)
+2. **Enhanced CLI UX **: 
    * **Standard Argument Parsing**: Trigger automated orders directly using flags (e.g. `--symbol BTCUSDT --side BUY --type MARKET --quantity 0.001`).
    * **Interactive Setup Wizard**: Running the script without flags (or with `--interactive`) starts a visually-guided prompt wizard, leading you step-by-step with live validation.
 3. **Structured & Custom Logging**:
@@ -72,7 +72,7 @@ venv\Scripts\python Bot/cli.py --symbol BTCUSDT --side BUY --type STOP_LIMIT --q
 ```
 
 
-### D. Run the Web UI Dashboard (Bonus)
+### D. Run the Web UI Dashboard
 To launch the Web UI dashboard served locally by Flask:
 ```bash
 venv\Scripts\python Bot/web_server.py
